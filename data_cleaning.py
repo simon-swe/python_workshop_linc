@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # 1. Load the dataset
-df = pd.read_excel('credit_card_customers(1).xlsx')
+df = pd.read_excel('credit_card_customers.xlsx')
 # Adjust the path/filename as necessary
 
 # 2. Basic look at dataset shape and columns
