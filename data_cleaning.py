@@ -1,43 +1,42 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from scipy.stats import chi2_contingency
+import pandas as pd
+from scipy.stats import f_oneway
+from customFunctions import *
 # 1. Load the dataset
 df = pd.read_excel('credit_card_customers.xlsx')
-# Adjust the path/filename as necessary
 
-# 2. Basic look at dataset shape and columns
-print("Dataset shape:", df.shape)
-print("Columns:", df.columns)
+def findSignificantCategories():
+    chi2Significance = []
+    anovaSignificance = []
 
-# 3. Proportion of clients who have left vs. stayed
-print("\nProportion of clients (Attrition_Flag):")
-print(df['Attrition_Flag'].value_counts(normalize=True))
+    reference = 'Attrition_Flag'
+    classificationCatagories = ['Gender', 'Dependent_count', 'Education_Level', 'Marital_Status', 'Income_Category', 'Card_Category']
+    numericalCatagories = ['Months_on_book',
+            'Total_Relationship_Count', 'Months_Inactive_12_mon',
+            'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
+            'Avg_Open_To_Buy', 'Total_Amt_Chng_Q4_Q1', 'Total_Trans_Amt',
+            'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio']
 
-# 4. Subset of clients who left
-df_left = df[df['Attrition_Flag'] == 'Closed']
+    for i in classificationCatagories:
+        contingency_table = pd.crosstab(df[reference], df[i])
+        chi2, p, dof, expected = chi2_contingency(contingency_table)
+        chi2Significance.append([i, p, chi2, dof])
 
-print("\nNumber of clients who left:", len(df_left))
 
-# 5. Distribution of selected features among those who left
-#    Here we show examples for Gender, Marital_Status, Income_Category, Months_on_book, Education_Level
-#    Adjust names as they appear in your dataset.
-features_of_interest = ['Gender', 'Marital_Status', 'Income_Category',
-                        'Months_on_book', 'Education_Level']
+    for i in numericalCatagories:
+        grouped_data = [df[df[reference] == group][i] for group in df[reference].unique()]
+        f_stat, p_value = f_oneway(*grouped_data)
+        anovaSignificance.append([i, p_value, f_stat])
 
-for feature in features_of_interest:
-    print(f"\nDistribution of {feature} for clients who left:")
-    print(df_left[feature].value_counts(dropna=False, normalize=True))
 
-    # OPTIONAL: quick bar plot for each feature
-    plt.figure(figsize=(4, 3))
-    sns.countplot(x=feature, data=df_left,
-                  order=df_left[feature].value_counts().index)
-    plt.title(f"Distribution of {feature} (Closed Accounts)")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
+    categoriesSignificance  = chi2Significance + anovaSignificance
+    significantCategories = list(filter(isCategorieSignificant, categoriesSignificance))
+    return significantCategories
 
-# 6. (Optional) Basic numeric summaries (e.g. describing numerical columns)
-print("\nStatistical summary of numerical columns (for those who left):")
-print(df_left.describe())
+
+
+
+
