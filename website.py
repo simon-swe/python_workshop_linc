@@ -4,17 +4,16 @@ import plotly.express as px
 import pandas as pd
 from custumer_stats import getCustomerStats
 from data_cleaning import getSignificantTables, getCorrelationHeatmap
+from pröva import getConfusionHeatmap
 
-# Initialize Dash app
+
 app = dash.Dash(__name__)
 
-# Get all Plotly figures from getCustomerStats()
+
 figures = getCustomerStats()
 
-# Customize plot colors
 colors = {'background': '#009090', 'text': '#ccffff'}
 
-# For each figure, update layout and store in a list of dcc.Graph elements
 graph_components = []
 for i, fig in enumerate(figures):
     fig.update_layout(
@@ -26,7 +25,6 @@ for i, fig in enumerate(figures):
     )
 
 
-# Define app layout
 app.layout = html.Div(
     style={'backgroundColor': colors['background']},
     children=[
@@ -38,27 +36,15 @@ app.layout = html.Div(
             children="",
             style={'color': colors['text']}
         ),
-        # Name input
-        html.Div(
-            children=[
-                "Input - your name:",
-                dcc.Input(
-                    id='my-input',
-                    value='your name',
-                    type='text',
-                    debounce=True
-                )
-            ],
-            style={'marginTop': '20px', 'marginBottom': '20px'}
-        ),
-        # Output of user interaction
+
+
         html.Div(
             id='my-output',
             style={'color': colors['text'], 'marginBottom': '20px'}
         ),
-        # A container that holds all the Graph components
+
         html.Div(children=graph_components),
-            html.H1("Credit Card Customer Analysis", style={'textAlign': 'center'}),
+        html.H1("Credit Card Customer Analysis", style={'textAlign': 'center'}),
         html.Div([
             html.H2("Significant Categories Table"),
             getSignificantTables()
@@ -66,27 +52,23 @@ app.layout = html.Div(
         html.Div([
             html.H2("Correlation Heatmap"),
             dcc.Graph(figure=getCorrelationHeatmap())
+        ]),
+        html.Div([
+            html.H2("Confusion Heatmap"),
+            dcc.Graph(figure=getConfusionHeatmap())
         ])
     ]
 )
 
-# Callback for user interaction
 
-
-@app.callback(
-    dash.Output(component_id='my-output', component_property='children'),
-    dash.Input(component_id='my-input', component_property='value')
-)
 def update_name(input_value):
     return f'Your name is {input_value}'
 
 
-# Run app
 if __name__ == '__main__':
     app.run_server(debug=True)
 
 
-# Example of a Python decorator (unrelated to Dash)
 def my_decorator(func):
     def wrapper():
         print("Something is happening before the function is called.")

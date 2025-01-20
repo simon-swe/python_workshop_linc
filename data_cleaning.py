@@ -5,7 +5,8 @@ from scipy.stats import chi2_contingency, f_oneway
 
 # Load dataset
 df = pd.read_excel('credit_card_customers.xlsx')
-classificationCategories = ['Gender', 'Dependent_count', 'Education_Level', 'Marital_Status', 'Income_Category', 'Card_Category']
+classificationCategories = ['Gender', 'Dependent_count',
+                            'Education_Level', 'Marital_Status', 'Income_Category', 'Card_Category']
 numericalCategories = [
     'Months_on_book', 'Total_Relationship_Count', 'Months_Inactive_12_mon',
     'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
@@ -13,7 +14,7 @@ numericalCategories = [
     'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio'
 ]
 
-# Return the significant categories after filtering using correlation, ANOVA, and Chi-square
+
 def findSignificantCategories():
     chi2Significance = []
     anovaSignificance = []
@@ -24,10 +25,9 @@ def findSignificantCategories():
         (var1, var2) for var1 in correlation_matrix.columns for var2 in correlation_matrix.columns
         if var1 != var2 and abs(correlation_matrix[var1][var2]) > threshold
     ]
-
-    # Keep only one variable from pairs
     variables_to_remove = {pair[1] for pair in high_corr_pairs}
-    reducedNumericalCategories = [var for var in numericalCategories if var not in variables_to_remove]
+    reducedNumericalCategories = [
+        var for var in numericalCategories if var not in variables_to_remove]
 
     for i in classificationCategories:
         contingency_table = pd.crosstab(df[reference], df[i])
@@ -35,15 +35,17 @@ def findSignificantCategories():
         chi2Significance.append([i, p, chi2, dof])
 
     for i in reducedNumericalCategories:
-        grouped_data = [df[df[reference] == group][i] for group in df[reference].unique()]
+        grouped_data = [df[df[reference] == group][i]
+                        for group in df[reference].unique()]
         f_stat, p_value = f_oneway(*grouped_data)
         anovaSignificance.append([i, p_value, f_stat])
 
     categoriesSignificance = chi2Significance + anovaSignificance
 
-    isCategorieSignificant = lambda result: result[1] < 0.05
+    def isCategorieSignificant(result): return result[1] < 0.05
 
-    significantCategories = list(filter(isCategorieSignificant, categoriesSignificance))
+    significantCategories = list(
+        filter(isCategorieSignificant, categoriesSignificance))
 
     return significantCategories
 
@@ -51,7 +53,6 @@ def findSignificantCategories():
 def getSignificantTables():
     sigCat = findSignificantCategories()
 
-    # Convert significant categories into a DataFrame for Dash DataTable
     data = [{"Variable": row[0], "p-value": row[1]} for row in sigCat]
     table = dash_table.DataTable(
         columns=[
@@ -72,7 +73,7 @@ def getSignificantTables():
     )
     return table
 
-# Return heatmap with correlation between numerical categories
+
 def getCorrelationHeatmap():
     correlation_matrix = df[numericalCategories].corr()
 
