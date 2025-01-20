@@ -3,6 +3,7 @@ from dash import html, dcc
 import plotly.express as px
 import pandas as pd
 from custumer_stats import getCustomerStats
+from data_cleaning import getSignificantTables, getCorrelationHeatmap
 
 # Initialize Dash app
 app = dash.Dash(__name__)
@@ -23,6 +24,7 @@ for i, fig in enumerate(figures):
     graph_components.append(
         dcc.Graph(id=f'graph-{i}', figure=fig)
     )
+
 
 # Define app layout
 app.layout = html.Div(
@@ -55,7 +57,16 @@ app.layout = html.Div(
             style={'color': colors['text'], 'marginBottom': '20px'}
         ),
         # A container that holds all the Graph components
-        html.Div(children=graph_components)
+        html.Div(children=graph_components),
+            html.H1("Credit Card Customer Analysis", style={'textAlign': 'center'}),
+        html.Div([
+            html.H2("Significant Categories Table"),
+            getSignificantTables()
+        ]),
+        html.Div([
+            html.H2("Correlation Heatmap"),
+            dcc.Graph(figure=getCorrelationHeatmap())
+        ])
     ]
 )
 

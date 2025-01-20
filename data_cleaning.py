@@ -88,7 +88,7 @@ def getCorrelationHeatmap():
         labels=dict(x="Features", y="Features", color="Correlation"),
         x=correlation_matrix.columns,
         y=correlation_matrix.columns,
-        color_continuous_scale="coolwarm",
+        color_continuous_scale="RdBu",
         zmin=-1,
         zmax=1,
     )

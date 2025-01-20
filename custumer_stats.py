@@ -36,15 +36,6 @@ def getCustomerStats():
         print(f"\nDistribution of {feature} for clients who left:")
         print(df_left[feature].value_counts(dropna=False, normalize=True))
 
-<<<<<<< HEAD
-        plt.figure(figsize=(4, 3))
-        sns.countplot(x=feature, data=df_left,
-                    order=df_left[feature].value_counts().index)
-        plt.title(f"Distribution of {feature} (Closed Accounts)")
-        plt.tight_layout()
-        plots.append(plt.gcf())
-        plt.show()
-=======
         # Create a histogram or bar chart
         # If the feature is categorical, histogram will create a count by default
         # If it's numeric (like 'Months_on_book'), it creates bins, but that may be okay for quick distribution
@@ -64,7 +55,6 @@ def getCustomerStats():
         # fig.update_xaxes(tickangle=45)
 
         plots.append(fig)
->>>>>>> 46b0988e4b669d4755ced2c6b637c2d8c20bf2c2
 
     return plots
 
