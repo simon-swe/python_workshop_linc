@@ -15,7 +15,8 @@ print("\nProportion of clients (Attrition_Flag):")
 print(df['Attrition_Flag'].value_counts(normalize=True))
 
 # 4. Subset of clients who left
-df_left = df[df['Attrition_Flag'] == 'Closed']
+
+df_left = df[df['Attrition_Flag'] == 'Attrited Customer']
 
 print("\nNumber of clients who left:", len(df_left))
 
