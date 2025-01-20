@@ -18,26 +18,6 @@ def findSignificantCategories():
         'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio'
     ]
 
-    # Perform Chi-Square Test for categorical variables
-    for i in classificationCategories:
-        contingency_table = pd.crosstab(df[reference], df[i])
-        chi2, p, dof, expected = chi2_contingency(contingency_table)
-        chi2Significance.append([i, p, chi2, dof])
-
-    # Perform ANOVA Test for numerical variables
-    for i in numericalCategories:
-        grouped_data = [df[df[reference] == group][i] for group in df[reference].unique()]
-        f_stat, p_value = f_oneway(*grouped_data)
-        anovaSignificance.append([i, p_value, f_stat])
-
-    # Combine significant results
-    categoriesSignificance = chi2Significance + anovaSignificance
-
-    # Filter significant categories based on a threshold
-    isCategorieSignificant = lambda result: result[1] < 0.05
-
-    significantCategories = list(filter(isCategorieSignificant, categoriesSignificance))
-
     # Remove highly correlated numerical variables
     correlation_matrix = df[numericalCategories].corr()
     threshold = 0.8
@@ -53,14 +33,28 @@ def findSignificantCategories():
     variables_to_remove = {pair[1] for pair in high_corr_pairs}
     reducedNumericalCategories = [var for var in numericalCategories if var not in variables_to_remove]
 
-    # Add p-value and F-statistic to variable names
-    numericalStats = {result[0]: (result[1], result[2]) for result in anovaSignificance}
-    reducedNumericalCategoriesWithStats = [
-        f"{var} (p={numericalStats[var][0]:.4f}, F={numericalStats[var][1]:.2f})"
-        for var in reducedNumericalCategories
-    ]
 
-    return significantCategories, reducedNumericalCategoriesWithStats, high_corr_pairs
+    # Perform Chi-Square Test for categorical variables
+    for i in classificationCategories:
+        contingency_table = pd.crosstab(df[reference], df[i])
+        chi2, p, dof, expected = chi2_contingency(contingency_table)
+        chi2Significance.append([i, p, chi2, dof])
+
+    # Perform ANOVA Test for numerical variables
+    for i in reducedNumericalCategories:
+        grouped_data = [df[df[reference] == group][i] for group in df[reference].unique()]
+        f_stat, p_value = f_oneway(*grouped_data)
+        anovaSignificance.append([i, p_value, f_stat])
+
+    # Combine significant results
+    categoriesSignificance = chi2Significance + anovaSignificance
+
+    # Filter significant categories based on a threshold
+    isCategorieSignificant = lambda result: result[1] < 0.05
+
+    significantCategories = list(filter(isCategorieSignificant, categoriesSignificance))
+
+    return significantCategories
 
 ret = findSignificantCategories()
 print()
