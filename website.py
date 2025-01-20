@@ -2,26 +2,27 @@ import dash
 from dash import html, dcc
 import plotly.express as px
 import pandas as pd
+from custumer_stats import getCustomerStats
 
 # Initialize Dash app
 app = dash.Dash(__name__)
 
-# Load Iris dataset
-df_iris = px.data.iris()
+# Get all Plotly figures from getCustomerStats()
+figures = getCustomerStats()
 
-# Customize the plot
-colors = {'background': '#004d4d', 'text': '#ccffff'}
-fig = px.scatter(
-    df_iris,
-    x='sepal_width',
-    y='sepal_length',
-    size='petal_length',
-    color='species'
-)
-fig.update_layout(
-    paper_bgcolor=colors['background'],
-    font_color=colors['text']
-)
+# Customize plot colors
+colors = {'background': '#009090', 'text': '#ccffff'}
+
+# For each figure, update layout and store in a list of dcc.Graph elements
+graph_components = []
+for i, fig in enumerate(figures):
+    fig.update_layout(
+        paper_bgcolor=colors['background'],
+        font_color=colors['text']
+    )
+    graph_components.append(
+        dcc.Graph(id=f'graph-{i}', figure=fig)
+    )
 
 # Define app layout
 app.layout = html.Div(
@@ -32,9 +33,10 @@ app.layout = html.Div(
             style={'color': colors['text'], 'textAlign': 'center'}
         ),
         html.Div(
-            children="Standard dataset visualization by LINC_STEM"
+            children="Standard dataset visualization by LINC_STEM",
+            style={'color': colors['text']}
         ),
-        # Add input
+        # Name input
         html.Div(
             children=[
                 "Input - your name:",
@@ -44,16 +46,22 @@ app.layout = html.Div(
                     type='text',
                     debounce=True
                 )
-            ]
+            ],
+            style={'marginTop': '20px', 'marginBottom': '20px'}
         ),
-        # Add output of user interaction
-        html.Div(id='my-output'),
-        # Add graph
-        dcc.Graph(id='example-graph', figure=fig)
+        # Output of user interaction
+        html.Div(
+            id='my-output',
+            style={'color': colors['text'], 'marginBottom': '20px'}
+        ),
+        # A container that holds all the Graph components
+        html.Div(children=graph_components)
     ]
 )
 
 # Callback for user interaction
+
+
 @app.callback(
     dash.Output(component_id='my-output', component_property='children'),
     dash.Input(component_id='my-input', component_property='value')
@@ -61,11 +69,13 @@ app.layout = html.Div(
 def update_name(input_value):
     return f'Your name is {input_value}'
 
+
 # Run app
 if __name__ == '__main__':
     app.run_server(debug=True)
 
-# Example of a decorator
+
+# Example of a Python decorator (unrelated to Dash)
 def my_decorator(func):
     def wrapper():
         print("Something is happening before the function is called.")
@@ -73,8 +83,10 @@ def my_decorator(func):
         print("Something is happening after the function is called.")
     return wrapper
 
+
 @my_decorator
 def say_hello():
     print("Hello!")
+
 
 say_hello()
