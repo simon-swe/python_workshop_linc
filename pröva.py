@@ -6,7 +6,9 @@ from sklearn.metrics import accuracy_score, confusion_matrix, classification_rep
 from customFunctions import isCategorieSignificant
 from data_cleaning import findSignificantCategories
 import plotly.express as px
-
+from sklearn.metrics import roc_curve, roc_auc_score
+import matplotlib.pyplot as plt
+import plotly.graph_objs as go
 
 df = pd.read_excel('credit_card_customers.xlsx')
 
@@ -88,3 +90,70 @@ sorted_idx = np.argsort(importances)[::-1]
 print("\n=== FEATURE IMPORTANCES ===")
 for idx in sorted_idx:
     print(f"{feature_names[idx]}: {importances[idx]:.4f}")
+
+
+y_probs = rf.predict_proba(X_test)[:, 1]
+
+# ------------------------------------------------
+# 2) Compute ROC Curve & AUC
+# ------------------------------------------------
+fpr, tpr, thresholds = roc_curve(y_test, y_probs)
+auc_value = roc_auc_score(y_test, y_probs)
+
+# ------------------------------------------------
+# 3) Create Plotly Figure for ROC
+# ------------------------------------------------
+fig = go.Figure()
+
+# ROC line
+fig.add_trace(
+    go.Scatter(
+        x=fpr,
+        y=tpr,
+        mode='lines',
+        name=f'ROC Curve (AUC={auc_value:.2f})',
+        line=dict(color='blue', width=2)
+    )
+)
+
+# Diagonal (Random) line
+fig.add_trace(
+    go.Scatter(
+        x=[0, 1],
+        y=[0, 1],
+        mode='lines',
+        name='Random',
+        line=dict(color='gray', width=2, dash='dash')
+    )
+)
+
+# Layout
+fig.update_layout(
+    title='ROC Curve for Random Forest',
+    xaxis_title='False Positive Rate',
+    yaxis_title='True Positive Rate',
+    width=600,
+    height=500
+)
+
+
+def roc():
+    return fig
+
+
+"""
+y_probs = rf.predict_proba(X_test)[:, 1]  
+
+fpr, tpr, thresholds = roc_curve(y_test, y_probs)
+
+auc_value = roc_auc_score(y_test, y_probs)
+
+plt.plot(fpr, tpr, label=f"Random Forest (AUC = {auc_value:.2f})")
+plt.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Random")
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("ROC Curve")
+plt.legend()
+plt.show()
+
+"""

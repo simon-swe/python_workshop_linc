@@ -4,7 +4,7 @@ import plotly.express as px
 import pandas as pd
 from custumer_stats import getCustomerStats
 from data_cleaning import getSignificantTables, getCorrelationHeatmap
-from pröva import getConfusionHeatmap
+from pröva import getConfusionHeatmap, roc
 
 
 app = dash.Dash(__name__)
@@ -12,7 +12,7 @@ app = dash.Dash(__name__)
 
 figures = getCustomerStats()
 
-colors = {'background': '#dcdcdc', 'text': '#ccffff'}
+colors = {'background': '#b0c4de', 'text': '#000036'}
 
 graph_components = []
 for i, fig in enumerate(figures):
@@ -56,7 +56,13 @@ app.layout = html.Div(
         html.Div([
             html.H2("Confusion Matrix ("),
             dcc.Graph(figure=getConfusionHeatmap())
-        ])
+        ]),
+        html.Div([
+            html.H1("Random Forest ROC Curve Example"),
+            dcc.Graph(
+                id='roc-graph',
+                figure=roc()  # pass the Plotly figure
+            )])
     ]
 )
 
