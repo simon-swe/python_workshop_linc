@@ -1,10 +1,8 @@
 import dash
 from dash import html, dcc
-import plotly.express as px
-import pandas as pd
 from custumer_stats import getCustomerStats
 from data_cleaning import getSignificantTables, getCorrelationHeatmap
-from pröva import getConfusionHeatmap, roc
+from pröva import getConfusion, roc
 
 
 app = dash.Dash(__name__)
@@ -55,7 +53,7 @@ app.layout = html.Div(
         ]),
         html.Div([
             html.H2("Confusion Matrix ("),
-            dcc.Graph(figure=getConfusionHeatmap())
+            dcc.Graph(figure=getConfusion())
         ]),
         html.Div([
             html.H1("Random Forest ROC Curve Example"),

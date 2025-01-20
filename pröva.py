@@ -3,11 +3,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from customFunctions import isCategorieSignificant
 from data_cleaning import findSignificantCategories
 import plotly.express as px
 from sklearn.metrics import roc_curve, roc_auc_score
-import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 
 df = pd.read_excel('credit_card_customers.xlsx')
@@ -19,7 +17,6 @@ df['Income_Category'] = df['Income_Category'].map({'Less than $40K': 0,
                                                    '$80K - $120K': 3,
                                                    '$120K +': 4,
                                                    'Unknown': 5})
-
 
 significant_cols_info = findSignificantCategories()
 significant_cols = [col_info[0] for col_info in significant_cols_info]
@@ -44,14 +41,11 @@ X_train, X_test, y_train, y_test = train_test_split(
     stratify=y
 )
 
-
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
 
 y_prob = rf.predict_proba(X_test)[:, 1]
 
-# The lower the threshold
-#threshold = 0.1
 threshold = 0.5
 y_pred = (y_prob >= threshold).astype(int)
 
@@ -65,7 +59,7 @@ print("Classification Report:\n", classification_report(y_test, y_pred))
 # Heatmap
 
 
-def getConfusionHeatmap():
+def getConfusion():
 
     cm = px.imshow(
         confusionMatrix,
@@ -94,18 +88,12 @@ for idx in sorted_idx:
 
 y_probs = rf.predict_proba(X_test)[:, 1]
 
-# ------------------------------------------------
-# 2) Compute ROC Curve & AUC
-# ------------------------------------------------
+
 fpr, tpr, thresholds = roc_curve(y_test, y_probs)
 auc_value = roc_auc_score(y_test, y_probs)
 
-# ------------------------------------------------
-# 3) Create Plotly Figure for ROC
-# ------------------------------------------------
 fig = go.Figure()
 
-# ROC line
 fig.add_trace(
     go.Scatter(
         x=fpr,
@@ -116,7 +104,6 @@ fig.add_trace(
     )
 )
 
-# Diagonal (Random) line
 fig.add_trace(
     go.Scatter(
         x=[0, 1],
@@ -127,7 +114,6 @@ fig.add_trace(
     )
 )
 
-# Layout
 fig.update_layout(
     title='ROC Curve for Random Forest',
     xaxis_title='False Positive Rate',
@@ -139,21 +125,3 @@ fig.update_layout(
 
 def roc():
     return fig
-
-
-"""
-y_probs = rf.predict_proba(X_test)[:, 1]  
-
-fpr, tpr, thresholds = roc_curve(y_test, y_probs)
-
-auc_value = roc_auc_score(y_test, y_probs)
-
-plt.plot(fpr, tpr, label=f"Random Forest (AUC = {auc_value:.2f})")
-plt.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Random")
-plt.xlabel("False Positive Rate")
-plt.ylabel("True Positive Rate")
-plt.title("ROC Curve")
-plt.legend()
-plt.show()
-
-"""
