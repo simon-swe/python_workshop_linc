@@ -12,7 +12,7 @@ app = dash.Dash(__name__)
 
 figures = getCustomerStats()
 
-colors = {'background': '#009090', 'text': '#ccffff'}
+colors = {'background': '#dcdcdc', 'text': '#ccffff'}
 
 graph_components = []
 for i, fig in enumerate(figures):
@@ -54,7 +54,7 @@ app.layout = html.Div(
             dcc.Graph(figure=getCorrelationHeatmap())
         ]),
         html.Div([
-            html.H2("Confusion Heatmap"),
+            html.H2("Confusion Matrix ("),
             dcc.Graph(figure=getConfusionHeatmap())
         ])
     ]

@@ -48,7 +48,8 @@ rf.fit(X_train, y_train)
 
 y_prob = rf.predict_proba(X_test)[:, 1]
 
-
+# The lower the threshold
+#threshold = 0.1
 threshold = 0.5
 y_pred = (y_prob >= threshold).astype(int)
 
@@ -63,24 +64,21 @@ print("Classification Report:\n", classification_report(y_test, y_pred))
 
 
 def getConfusionHeatmap():
-    # Melt optional if you need it for something else; not used for the imshow
-    # melted = confusionMatrix.reset_index().melt(...)
 
-    heatmap = px.imshow(
+    cm = px.imshow(
         confusionMatrix,
-        labels=dict(x="Predicted", y="Actual", color="Count"),
-        x=confusionMatrix,
-        y=confusionMatrix.index,  # Usually the rows are "actual", columns are "predicted"
-        color_continuous_scale="Blues",
-        zmin=0,  # Minimum value for color scale
-        zmax=confusionMatrix.values.max()  # or omit to let Plotly auto-scale
+        text_auto=True,
+        color_continuous_scale="Blues")
+    cm.update_layout(
+        title="Confusion Matrix",
+        xaxis_title="Predicted Label",
+        yaxis_title="True Label",
+        width=500,
+        height=500
     )
-    heatmap.update_layout(
-        title="Confusion Matrix Heatmap",
-        width=600,
-        height=600
-    )
-    return heatmap
+    cm.update_xaxes(showticklabels=False)
+    cm.update_yaxes(showticklabels=False)
+    return cm
 
 
 importances = rf.feature_importances_
