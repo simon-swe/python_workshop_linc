@@ -23,11 +23,11 @@ def getCustumerStats():
     for feature in features_of_interest:
         print(f"\nDistribution of {feature} for clients who left:")
         print(df_left[feature].value_counts(dropna=False, normalize=True))
+
         plt.figure(figsize=(4, 3))
         sns.countplot(x=feature, data=df_left,
                     order=df_left[feature].value_counts().index)
         plt.title(f"Distribution of {feature} (Closed Accounts)")
-        plt.xticks(rotation=45)
         plt.tight_layout()
         plots.append(plt.gcf())
         plt.show()
