@@ -31,11 +31,11 @@ app.layout = html.Div(
     style={'backgroundColor': colors['background']},
     children=[
         html.H1(
-            children='Iris Graph Display',
+            children='Variable relevance for attribution',
             style={'color': colors['text'], 'textAlign': 'center'}
         ),
         html.Div(
-            children="Standard dataset visualization by LINC_STEM",
+            children="",
             style={'color': colors['text']}
         ),
         # Name input

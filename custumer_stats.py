@@ -36,12 +36,8 @@ def getCustomerStats():
         print(f"\nDistribution of {feature} for clients who left:")
         print(df_left[feature].value_counts(dropna=False, normalize=True))
 
-        # Create a histogram or bar chart
-        # If the feature is categorical, histogram will create a count by default
-        # If it's numeric (like 'Months_on_book'), it creates bins, but that may be okay for quick distribution
-        # Alternatively, for numeric, you could set e.g. nbins=15 or so in px.histogram, or use px.bar if appropriate.
         fig = px.histogram(
-            df_left,
+            df_left.sort_values(by=feature),
             x=feature,
             # If numeric, you might also do something like:
             # nbins=10
